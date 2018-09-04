@@ -11,7 +11,7 @@ var app = new Vue({
 
     methods: {
         addPoint: ({ clientX, clientY }) => delauney.addPoint(clientX, clientY),
-        paths: () => delauney.connectPoints(),
+        paths: () => delauney.render(),
     },
 
     template: `

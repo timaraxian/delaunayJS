@@ -3,33 +3,35 @@ export function NewDelaunay() {
     const state = {
         points: [],
         triangles: [],
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity,
+        boundingP1: {},
+        boundingP2: {},
+        boundingP3: {},
+        paths: [], //Todo: move outside with render()
     }
 
     function addPoint(x, y) {
         state.points.push({ x: x, y: y })
+        if (x < state.minX) {
+            state.minX = x
+        }
+        if (x > state.maxX) {
+            state.maxX = x
+        }
+        if (y < state.minY) {
+            state.minY = y
+        }
+        if (y > state.maxY) {
+            state.maxY = y
+        }
+        state.boundingP1 = { x: state.minX - 10 , y: state.maxY + 10 }
+        state.boundingP2 = { x: state.minX - 10, y: 2 * state.minY - state.maxY - 20 }
+        state.boundingP3 = { x: 2 * state.maxX - state.minX + 20, y: state.maxY + 10 }
+
         return { x: x, y: y }
-    }
-
-    function connectPoints() {
-        state.drawPaths = true
-        state.paths = []
-        if (state.points.length < 3) {
-            return
-        }
-        if (state.points.length == 3) {
-            state.paths.push("" + state.points[0].x + "," + state.points[0].y + " "
-                + state.points[1].x + "," + state.points[1].y + " "
-                + state.points[2].x + "," + state.points[2].y + ""
-            )
-            return
-        }
-
-        for (let i = 0; i < state.points.length; i++) {
-            const A = state.points[i]
-            const [B, C, D] = closest3(A)
-            localDelaunay(A, B, C, D)
-        }
-        state.paths = [... new Set(state.paths)]
     }
 
     function distance(p1, p2) {
@@ -42,33 +44,71 @@ export function NewDelaunay() {
         return Math.acos((A * A + B * B - C * C) / (2 * A * B))
     }
 
-    function triangulate() {
-        const sorted = state.points.sort((pt1, pt2) => {
-            if (pt1.x < pt2.x) return -1
-            if (pt1.x > pt2.x) return 1
-            return 0
-        })
-        if (sorted.length == 3) {
-            state.triangles.push([sorted[0], sorted[1], sorted[2]])
+    function pointInTriangle(tri, pt) {
+        /* To determine if a point lies in a triangle:
+         * Cross the vector from a vertex to the point with
+         * the vector of the edge leaving that vertex.
+         * If all cross products have the same sign then the
+         * point lies in triangle's interior
+         */
+        const ptx = pt.x
+        const pty = pt.y
+        const v_0x = tri[0].x
+        const v_0y = tri[0].y
+        const v_1x = tri[1].x
+        const v_1y = tri[1].y
+        const v_2x = tri[2].x
+        const v_2y = tri[2].y
+
+        const k1 = (ptx - v_0x) * (v_1y - v_0y) - (pty - v_0y) * (v_1x - v_0x)
+        const k2 = (ptx - v_1x) * (v_2y - v_1y) - (pty - v_1y) * (v_2x - v_1x)
+        const k3 = (ptx - v_2x) * (v_0y - v_2y) - (pty - v_2y) * (v_0x - v_2x)
+
+        if ((k1 < 0 && k2 < 0 && k3 < 0) || (k1 > 0 && k2 > 0 && k3 > 0)) {
+            return true
         }
-        sorted.forEach((pt, i) => {
-            if (i < 2) return
-            state.triangles.forEach((tr) => {
-                localDelaunay(tr,pt)
-            })
-            return
-        })
-        return
+        return false
     }
 
-    function localDelaunay(tr, pt) {
-        
+    function triangulate() {
+        state.triangles.push([state.boundingP1, state.boundingP2, state.boundingP3])
+        state.points.forEach((pt) => {
+            let tempTriangles = []
+            state.triangles.forEach((tri) => {
+                if (pointInTriangle(tri, pt)) {
+                    tempTriangles.push(
+                        [pt, tri[0], tri[1]],
+                        [pt, tri[1], tri[2]],
+                        [pt, tri[0], tri[2]],
+                    )
+                } else {
+                    tempTriangles.push(tri)
+                }
+            })
+            state.triangles = tempTriangles
+        })
+        // Todo: legalise triangles
+
+        // Todo: remove bounding triangle
+    }
+
+    // Todo: move outside
+    function render() {
+        triangulate()
+        state.triangles.forEach((tri) => {
+            const path = "" + tri[0].x + "," + tri[0].y + " "
+                + tri[1].x + "," + tri[1].y + " "
+                + tri[2].x + "," + tri[2].y + ""
+            state.paths.push(path)
+        })
     }
 
     return {
         state,
         addPoint,
-        connectPoints,
+        pointInTriangle,
+        render,
         triangulate,
+        render, //todo: remove
     }
 }
