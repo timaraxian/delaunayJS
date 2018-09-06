@@ -68,7 +68,7 @@ describe('Delaunay', () => {
         const d = NewDelaunay()
 
         const pt1 = { x: 1, y: 1 }
-        const pt2 = { x: 10, y: 12}
+        const pt2 = { x: 10, y: 12 }
         const tri = [
             { x: -3, y: 0 },
             { x: 0, y: 3 },
@@ -92,9 +92,33 @@ describe('Delaunay', () => {
 
         expect(d.state.triangles.length).equals(3)
         expect(d.state.triangles).eql([
-            [pt, d.state.boundingP1,d.state.boundingP2],
-            [pt, d.state.boundingP2,d.state.boundingP3],
-            [pt, d.state.boundingP1,d.state.boundingP3],
+            [pt, d.state.boundingP1, d.state.boundingP2],
+            [pt, d.state.boundingP2, d.state.boundingP3],
+            [pt, d.state.boundingP1, d.state.boundingP3],
         ])
+    })
+
+    it('legalises triangles', () => {
+        const d = NewDelaunay()
+
+        d.state.triangles.push(
+            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 10, y: 20 }],
+            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
+        )
+
+        const old = [
+            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 10, y: 20 }],
+            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
+        ]
+
+        d.legalise()
+
+        const expected = [
+            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 15, y: 10 }],
+            [{ x: 5, y: 10 }, { x: 10, y: 20 }, { x: 15, y: 10 }],
+        ]
+
+        expect(d.state.triangles.length).equals(2)
+        expect(d.state.triangles).eql(old)
     })
 })
