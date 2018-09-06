@@ -124,6 +124,7 @@ export function NewDelaunay() {
         render,
         legalise,
         triangulate,
+        legalise,
         render, //todo: remove
     }
 }

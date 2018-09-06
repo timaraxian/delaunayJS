@@ -68,7 +68,7 @@ describe('Delaunay', () => {
         const d = NewDelaunay()
 
         const pt1 = { x: 1, y: 1 }
-        const pt2 = { x: 10, y: 12}
+        const pt2 = { x: 10, y: 12 }
         const tri = [
             { x: -3, y: 0 },
             { x: 0, y: 3 },
@@ -92,9 +92,9 @@ describe('Delaunay', () => {
 
         expect(d.state.triangles.length).equals(3)
         expect(d.state.triangles).eql([
-            [pt, d.state.boundingP1,d.state.boundingP2],
-            [pt, d.state.boundingP2,d.state.boundingP3],
-            [pt, d.state.boundingP1,d.state.boundingP3],
+            [pt, d.state.boundingP1, d.state.boundingP2],
+            [pt, d.state.boundingP2, d.state.boundingP3],
+            [pt, d.state.boundingP1, d.state.boundingP3],
         ])
     })
 
