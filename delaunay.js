@@ -70,6 +70,20 @@ export function NewDelaunay() {
         return false
     }
 
+    function legalise() {
+        state.triangles.forEach((tri1) => {
+            state.triangles.forEach((tri2) => {
+                if (tri1 == tri2) {
+                    return
+                }
+                const allVertices = new Set([...tri1, ...tri2])
+                //todo: ensure set is correct, coslaw, retriangulate
+                return
+            })
+            return
+        })
+    }
+
     function triangulate() {
         state.triangles.push([state.boundingP1, state.boundingP2, state.boundingP3])
         state.points.forEach((pt) => {
@@ -108,6 +122,7 @@ export function NewDelaunay() {
         addPoint,
         pointInTriangle,
         render,
+        legalise,
         triangulate,
         render, //todo: remove
     }

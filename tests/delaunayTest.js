@@ -97,4 +97,28 @@ describe('Delaunay', () => {
             [pt, d.state.boundingP1,d.state.boundingP3],
         ])
     })
+
+    it('legalises triangles', () => {
+        const d = NewDelaunay()
+
+        d.state.triangles.push(
+            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 10, y: 20 }],
+            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
+        )
+
+        const old = [
+            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 10, y: 20 }],
+            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
+        ]
+
+        d.legalise()
+
+        const expected = [
+            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 15, y: 10 }],
+            [{ x: 5, y: 10 }, { x: 10, y: 20 }, { x: 15, y: 10 }],
+        ]
+
+        expect(d.state.triangles.length).equals(2)
+        expect(d.state.triangles).eql(old)
+    })
 })
