@@ -27,7 +27,7 @@ export function NewDelaunay() {
         if (y > state.maxY) {
             state.maxY = y
         }
-        state.boundingP1 = { x: state.minX - 10 , y: state.maxY + 10 }
+        state.boundingP1 = { x: state.minX - 10, y: state.maxY + 10 }
         state.boundingP2 = { x: state.minX - 10, y: 2 * state.minY - state.maxY - 20 }
         state.boundingP3 = { x: 2 * state.maxX - state.minX + 20, y: state.maxY + 10 }
 
@@ -40,7 +40,10 @@ export function NewDelaunay() {
         return Math.sqrt(dx * dx + dy * dy)
     }
 
-    function cosLaw(A, B, C) {
+    function cosLaw(ptA, ptB, ptC) {
+        const A = distance(ptB, ptC)
+        const B = distance(ptA, ptC)
+        const C = distance(ptA, ptB)
         return Math.acos((A * A + B * B - C * C) / (2 * A * B))
     }
 
@@ -71,17 +74,105 @@ export function NewDelaunay() {
     }
 
     function legalise() {
+        let tempTriangles = []
         state.triangles.forEach((tri1) => {
+            let innerTempTriangles = []
             state.triangles.forEach((tri2) => {
                 if (tri1 == tri2) {
                     return
                 }
-                const allVertices = new Set([...tri1, ...tri2])
-                //todo: ensure set is correct, coslaw, retriangulate
+                const allVertices = [...tri1]
+                tri2.forEach((pt1) => {
+                    let unique = true
+                    allVertices.forEach((pt2) => {
+                        if (pt1.x == pt2.x && pt1.y == pt2.y) {
+                            unique = false
+                            return
+                        }
+                    })
+                    if (unique == true) {
+                        allVertices.push(pt1)
+                    }
+                })
+
+                if (allVertices.length != 4) {
+                    innerTempTriangles.push(tri1, tri2)
+                    return
+                }
+
+                //todo: make neater
+                //maxmimising the angles
+                let min1 = Infinity
+                let min2 = Infinity
+
+                //first two triangle arrangement, 012, 023
+                let tempMin = cosLaw(allVertices[0], allVertices[1], allVertices[2])
+                if (tempMin < min1) {
+                    min1 = tempMin
+                }
+                tempMin = cosLaw(allVertices[1], allVertices[0], allVertices[2])
+                if (tempMin < min1) {
+                    min1 = tempMin
+                }
+                tempMin = cosLaw(allVertices[1], allVertices[2], allVertices[0])
+                if (tempMin < min1) {
+                    min1 = tempMin
+                }
+                tempMin = cosLaw(allVertices[0], allVertices[2], allVertices[3])
+                if (tempMin < min1) {
+                    min1 = tempMin
+                }
+                tempMin = cosLaw(allVertices[0], allVertices[3], allVertices[2])
+                if (tempMin < min1) {
+                    min1 = tempMin
+                }
+                tempMin = cosLaw(allVertices[2], allVertices[0], allVertices[3])
+                if (tempMin < min1) {
+                    min1 = tempMin
+                }
+
+                //second two triangle arrangement
+                tempMin = cosLaw(allVertices[0], allVertices[1], allVertices[3])
+                if (tempMin < min2) {
+                    min2 = tempMin
+                }
+                tempMin = cosLaw(allVertices[1], allVertices[0], allVertices[3])
+                if (tempMin < min2) {
+                    min2 = tempMin
+                }
+                tempMin = cosLaw(allVertices[1], allVertices[3], allVertices[0])
+                if (tempMin < min2) {
+                    min2 = tempMin
+                }
+                tempMin = cosLaw(allVertices[1], allVertices[2], allVertices[3])
+                if (tempMin < min2) {
+                    min2 = tempMin
+                }
+                tempMin = cosLaw(allVertices[1], allVertices[3], allVertices[2])
+                if (tempMin < min2) {
+                    min2 = tempMin
+                }
+                tempMin = cosLaw(allVertices[2], allVertices[1], allVertices[3])
+                if (tempMin < min2) {
+                    min2 = tempMin
+                }
+
+                if (min1 < min2) {
+                    innerTempTriangles.push([allVertices[1], allVertices[2], allVertices[3]])
+                    innerTempTriangles.push([allVertices[0], allVertices[1], allVertices[3]])
+                } else {
+                    innerTempTriangles.push(tri1, tri2)
+                }
+
                 return
             })
+            tempTriangles = innerTempTriangles
+
             return
         })
+        state.triangles = tempTriangles
+
+        return
     }
 
     function triangulate() {
@@ -101,7 +192,8 @@ export function NewDelaunay() {
             })
             state.triangles = tempTriangles
         })
-        // Todo: legalise triangles
+
+        legalise()
 
         // Todo: remove bounding triangle
     }

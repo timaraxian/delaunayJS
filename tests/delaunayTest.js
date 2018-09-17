@@ -106,19 +106,14 @@ describe('Delaunay', () => {
             [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
         )
 
-        const old = [
-            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 10, y: 20 }],
-            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
-        ]
-
         d.legalise()
 
         const expected = [
-            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 15, y: 10 }],
-            [{ x: 5, y: 10 }, { x: 10, y: 20 }, { x: 15, y: 10 }],
+            [{ x: 15, y: 10 }, { x: 10, y: 20 }, { x: 5, y: 10 }],
+            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 5, y: 10 }],
         ]
 
         expect(d.state.triangles.length).equals(2)
-        expect(d.state.triangles).eql(old)
+        expect(d.state.triangles).eql(expected)
     })
 })
