@@ -177,6 +177,7 @@ export function NewDelaunay() {
 
     function triangulate() {
         state.triangles.push([state.boundingP1, state.boundingP2, state.boundingP3])
+        console.log("bounding triangle:", state.triangles)
         state.points.forEach((pt) => {
             let tempTriangles = []
             state.triangles.forEach((tri) => {
@@ -193,9 +194,27 @@ export function NewDelaunay() {
             state.triangles = tempTriangles
         })
 
+        console.log("before legalising:", state.triangles)
         legalise()
+        console.log("before removing bounding:", state.triangles)
 
-        // Todo: remove bounding triangle
+        let tempTriangles = []
+        state.triangles.forEach((tri) => {
+            let bounding = false
+            tri.forEach((pt) => {
+                if (pt == state.boundingP1 ||
+                    pt == state.boundingP2 ||
+                    pt == state.boundingP3) {
+                    bounding = true
+                }
+            })
+            if (!bounding) {
+                tempTriangles.push(tri)
+            }
+        })
+        state.triangles = tempTriangles
+        console.log("after removing bounding:", state.triangles)
+
     }
 
     // Todo: move outside
