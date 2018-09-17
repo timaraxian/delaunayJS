@@ -82,21 +82,21 @@ describe('Delaunay', () => {
         expect(expect2).equals(false)
     })
 
-    it('triangulates (incorrectly) with bounding triangle', () => {
-        //This test will be removed once the correct triangulation is implemented
-        const d = NewDelaunay()
-
-        const pt = d.addPoint(10, 10)
-
-        d.triangulate()
-
-        expect(d.state.triangles.length).equals(3)
-        expect(d.state.triangles).eql([
-            [pt, d.state.boundingP1, d.state.boundingP2],
-            [pt, d.state.boundingP2, d.state.boundingP3],
-            [pt, d.state.boundingP1, d.state.boundingP3],
-        ])
-    })
+    // it('triangulates (incorrectly) with bounding triangle', () => {
+    //     //This test will be removed once the correct triangulation is implemented
+    //     const d = NewDelaunay()
+    //
+    //     const pt = d.addPoint(10, 10)
+    //
+    //     d.triangulate()
+    //
+    //     expect(d.state.triangles.length).equals(3)
+    //     expect(d.state.triangles).eql([
+    //         [pt, d.state.boundingP1, d.state.boundingP2],
+    //         [pt, d.state.boundingP2, d.state.boundingP3],
+    //         [pt, d.state.boundingP1, d.state.boundingP3],
+    //     ])
+    // })
 
     it('legalises triangles', () => {
         const d = NewDelaunay()
@@ -106,19 +106,34 @@ describe('Delaunay', () => {
             [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
         )
 
-        const old = [
-            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 10, y: 20 }],
-            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
-        ]
-
         d.legalise()
 
         const expected = [
-            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 15, y: 10 }],
-            [{ x: 5, y: 10 }, { x: 10, y: 20 }, { x: 15, y: 10 }],
+            [{ x: 15, y: 10 }, { x: 10, y: 20 }, { x: 5, y: 10 }],
+            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 5, y: 10 }],
         ]
 
         expect(d.state.triangles.length).equals(2)
-        expect(d.state.triangles).eql(old)
+        expect(d.state.triangles).eql(expected)
+    })
+
+    it('triangulates correctly and removes bounding triangle', () => {
+        const d = NewDelaunay()
+
+        d.addPoint(10,5)
+        d.addPoint(5,10)
+        d.addPoint(10,20)
+        d.addPoint(15,10)
+
+        d.triangulate()
+        // console.log(d.state.triangles)
+
+        const expected = [
+            [{ x: 15, y: 10 }, { x: 10, y: 20 }, { x: 5, y: 10 }],
+            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 5, y: 10 }],
+        ]
+
+        expect(d.state.triangles.length).equals(2)
+        expect(d.state.triangles).eql(expected)
     })
 })
