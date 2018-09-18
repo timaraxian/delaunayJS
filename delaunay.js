@@ -73,6 +73,28 @@ export function NewDelaunay() {
         return false
     }
 
+    function partOfBounding(tri) {
+        let bounding = false
+        tri.forEach((pt) => {
+            if (pt == state.boundingP1 ||
+                pt == state.boundingP2 ||
+                pt == state.boundingP3) {
+                bounding = true
+            }
+        })
+        return bounding
+    }
+
+    function sortVertices(vertices) {
+        vertices.sort((a, b) => {
+            if (a.x < b.x || (a.x == b.x && a.y < b.y)) return 1;
+            if (a.x == b.x && a.y == b.y) return 0;
+            return -1;
+        })
+
+        return vertices
+    }
+
     function legalise() {
         let tempTriangles = []
         state.triangles.forEach((tri1) => {
@@ -81,7 +103,7 @@ export function NewDelaunay() {
                 if (tri1 == tri2) {
                     return
                 }
-                const allVertices = [...tri1]
+                let allVertices = [...tri1]
                 tri2.forEach((pt1) => {
                     let unique = true
                     allVertices.forEach((pt2) => {
@@ -100,17 +122,19 @@ export function NewDelaunay() {
                     return
                 }
 
+                allVertices = sortVertices(allVertices)
+
                 //todo: make neater
                 //maxmimising the angles
                 let min1 = Infinity
                 let min2 = Infinity
 
-                //first two triangle arrangement, 012, 023
+                //first two triangle arrangement, 012, 123
                 let tempMin = cosLaw(allVertices[0], allVertices[1], allVertices[2])
                 if (tempMin < min1) {
                     min1 = tempMin
                 }
-                tempMin = cosLaw(allVertices[1], allVertices[0], allVertices[2])
+                tempMin = cosLaw(allVertices[2], allVertices[0], allVertices[1])
                 if (tempMin < min1) {
                     min1 = tempMin
                 }
@@ -118,25 +142,25 @@ export function NewDelaunay() {
                 if (tempMin < min1) {
                     min1 = tempMin
                 }
-                tempMin = cosLaw(allVertices[0], allVertices[2], allVertices[3])
+                tempMin = cosLaw(allVertices[1], allVertices[2], allVertices[3])
                 if (tempMin < min1) {
                     min1 = tempMin
                 }
-                tempMin = cosLaw(allVertices[0], allVertices[3], allVertices[2])
+                tempMin = cosLaw(allVertices[1], allVertices[3], allVertices[2])
                 if (tempMin < min1) {
                     min1 = tempMin
                 }
-                tempMin = cosLaw(allVertices[2], allVertices[0], allVertices[3])
+                tempMin = cosLaw(allVertices[2], allVertices[3], allVertices[1])
                 if (tempMin < min1) {
                     min1 = tempMin
                 }
 
-                //second two triangle arrangement
+                //second two triangle arrangement, 023,013
                 tempMin = cosLaw(allVertices[0], allVertices[1], allVertices[3])
                 if (tempMin < min2) {
                     min2 = tempMin
                 }
-                tempMin = cosLaw(allVertices[1], allVertices[0], allVertices[3])
+                tempMin = cosLaw(allVertices[3], allVertices[0], allVertices[1])
                 if (tempMin < min2) {
                     min2 = tempMin
                 }
@@ -144,24 +168,25 @@ export function NewDelaunay() {
                 if (tempMin < min2) {
                     min2 = tempMin
                 }
-                tempMin = cosLaw(allVertices[1], allVertices[2], allVertices[3])
+                tempMin = cosLaw(allVertices[0], allVertices[2], allVertices[3])
                 if (tempMin < min2) {
                     min2 = tempMin
                 }
-                tempMin = cosLaw(allVertices[1], allVertices[3], allVertices[2])
+                tempMin = cosLaw(allVertices[0], allVertices[3], allVertices[2])
                 if (tempMin < min2) {
                     min2 = tempMin
                 }
-                tempMin = cosLaw(allVertices[2], allVertices[1], allVertices[3])
+                tempMin = cosLaw(allVertices[2], allVertices[3], allVertices[0])
                 if (tempMin < min2) {
                     min2 = tempMin
                 }
 
                 if (min1 < min2) {
-                    innerTempTriangles.push([allVertices[1], allVertices[2], allVertices[3]])
+                    innerTempTriangles.push([allVertices[0], allVertices[2], allVertices[3]])
                     innerTempTriangles.push([allVertices[0], allVertices[1], allVertices[3]])
                 } else {
-                    innerTempTriangles.push(tri1, tri2)
+                    innerTempTriangles.push([allVertices[0], allVertices[1], allVertices[2]])
+                    innerTempTriangles.push([allVertices[1], allVertices[2], allVertices[3]])
                 }
 
                 return
@@ -177,7 +202,6 @@ export function NewDelaunay() {
 
     function triangulate() {
         state.triangles.push([state.boundingP1, state.boundingP2, state.boundingP3])
-        console.log("bounding triangle:", state.triangles)
         state.points.forEach((pt) => {
             let tempTriangles = []
             state.triangles.forEach((tri) => {
@@ -194,20 +218,11 @@ export function NewDelaunay() {
             state.triangles = tempTriangles
         })
 
-        console.log("before legalising:", state.triangles)
         legalise()
-        console.log("before removing bounding:", state.triangles)
 
         let tempTriangles = []
         state.triangles.forEach((tri) => {
-            let bounding = false
-            tri.forEach((pt) => {
-                if (pt == state.boundingP1 ||
-                    pt == state.boundingP2 ||
-                    pt == state.boundingP3) {
-                    bounding = true
-                }
-            })
+            const bounding = partOfBounding(tri)
             if (!bounding) {
                 tempTriangles.push(tri)
             }

@@ -109,31 +109,50 @@ describe('Delaunay', () => {
         d.legalise()
 
         const expected = [
+            [{ x: 15, y: 10 }, { x: 10, y: 5 }, { x: 5, y: 10 }],
             [{ x: 15, y: 10 }, { x: 10, y: 20 }, { x: 5, y: 10 }],
-            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 5, y: 10 }],
         ]
 
         expect(d.state.triangles.length).equals(2)
         expect(d.state.triangles).eql(expected)
     })
 
-    it('triangulates correctly and removes bounding triangle', () => {
+    it('legalises triangles 2', () => {
         const d = NewDelaunay()
 
-        d.addPoint(10,5)
-        d.addPoint(5,10)
-        d.addPoint(10,20)
-        d.addPoint(15,10)
-
-        d.triangulate()
-        // console.log(d.state.triangles)
+        d.state.triangles.push(
+            [{ x: 5, y: 10 }, { x: 10, y: 5 }, { x: -5, y: 30 }],
+            [{ x: 10, y: 20 }, { x: 10, y: 5 }, { x: -5, y: 30 }],
+        )
+        console.log(d.state.triangles)
+        d.legalise()
+        console.log(d.state.triangles)
 
         const expected = [
-            [{ x: 15, y: 10 }, { x: 10, y: 20 }, { x: 5, y: 10 }],
-            [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 5, y: 10 }],
+            [{ x: 10, y: 5 }, { x: -5, y: 30 }, { x: 5, y: 10 }],
+            [{ x: 10, y: 20 }, { x: 10, y: 5 }, { x: 5, y: 10 }],
         ]
 
         expect(d.state.triangles.length).equals(2)
         expect(d.state.triangles).eql(expected)
     })
+
+    // it('triangulates correctly and removes bounding triangle', () => {
+    //     const d = NewDelaunay()
+    //
+    //     d.addPoint(10, 5)
+    //     d.addPoint(5, 10)
+    //     d.addPoint(10, 20)
+    //     d.addPoint(15, 10)
+    //
+    //     d.triangulate()
+    //
+    //     const expected = [
+    //         [{ x: 15, y: 10 }, { x: 10, y: 20 }, { x: 5, y: 10 }],
+    //         [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 5, y: 10 }],
+    //     ]
+    //
+    //     expect(d.state.triangles.length).equals(2)
+    //     expect(d.state.triangles).eql(expected)
+    // })
 })
