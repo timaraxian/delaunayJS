@@ -109,9 +109,9 @@ describe('Delaunay', () => {
         ])
 
         const expected = [
+            { x: 5, y: 10 },
             { x: 10, y: 20 },
             { x: 10, y: 5 },
-            { x: 5, y: 10 },
             { x: 15, y: 10 },
         ]
 
@@ -129,32 +129,49 @@ describe('Delaunay', () => {
         ])
 
         const expected = [
+            { x: 1, y: 1 },
             { x: 2, y: 3 },
             { x: 3, y: 1 },
-            { x: 1, y: 1 },
             { x: 4, y: 2 },
         ]
 
         expect(sorted).eql(expected)
     })
-    /*
+
+    it('sorts vertices 3', () => {
+        const d = NewDelaunay()
+
+        const sorted = d.sortVertices([
+            { x: 10, y: 20 },
+            { x: 5, y: 10 },
+            { x: -5, y: 30 },
+            { x: 10, y: 5 },
+        ])
+
+        const expected = [
+            { x: 5, y: 10 },
+            { x: -5, y: 30 },
+            { x: 10, y: 5 },
+            { x: 10, y: 20 },
+        ]
+
+        expect(sorted).eql(expected)
+    })
+
     it('legalises triangles', () => {
         const d = NewDelaunay()
 
         d.state.triangles.push(
             [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 10, y: 20 }],
             [{ x: 10, y: 5 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
-            // [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 15, y: 10 }],
-            // [{ x: 5, y: 10 }, { x: 10, y: 20 }, { x: 15, y: 10 }],
         )
 
         d.legalise()
 
         const expected = [
-            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 15, y: 10 }],
-            [{ x: 5, y: 10 }, { x: 10, y: 20 }, { x: 15, y: 10 }],
+            [{ x: 5, y: 10 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
+            [{ x: 5, y: 10 }, { x: 15, y: 10 }, { x: 10, y: 5 }],
         ]
-        console.log(d.state.triangles)
 
         expect(d.state.triangles.length).equals(2)
         expect(d.state.triangles).eql(expected)
@@ -171,14 +188,14 @@ describe('Delaunay', () => {
         d.legalise()
 
         const expected = [
-            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 10, y: 20 }],
-            [{ x: 5, y: 10 }, { x: -5, y: 30 }, { x: 10, y: 20 }],
+            [{ x: 5, y: 10 }, { x: 10, y: 20 }, { x: -5, y: 30 }],
+            [{ x: 5, y: 10 }, { x: 10, y: 20 }, { x: 10, y: 5 }],
         ]
-        console.log(d.state.triangles)
+
         expect(d.state.triangles.length).equals(2)
         expect(d.state.triangles).eql(expected)
     })
-/*
+
     it('triangulates correctly and removes bounding triangle', () => {
         const d = NewDelaunay()
 
@@ -190,12 +207,11 @@ describe('Delaunay', () => {
         d.triangulate()
 
         const expected = [
-            [{ x: 10, y: 5 }, { x: 5, y: 10 }, { x: 15, y: 10 }],
-            [{ x: 5, y: 10 }, { x: 10, y: 20 }, { x: 15, y: 10 }],
+            [{ x: 5, y: 10 }, { x: 15, y: 10 }, { x: 10, y: 20 }],
+            [{ x: 5, y: 10 }, { x: 15, y: 10 }, { x: 10, y: 5 }],
         ]
 
         expect(d.state.triangles.length).equals(2)
         expect(d.state.triangles).eql(expected)
     })
-    */
 })

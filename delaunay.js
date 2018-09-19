@@ -105,12 +105,12 @@ export function NewDelaunay() {
         })
         const rightMost = vertices[0]
         vertices.shift()
-        vertices.sort((a,b) => {
+        vertices.sort((a, b) => {
             return (a.x > b.x) ? 1 : -1
         })
 
-        if (!rightOf(vertices[0], [vertices[1], vertices[2]])) {
-            vertices = [vertices[1], vertices[2], vertices[0]]
+        if (!rightOf(vertices[1], [vertices[0], vertices[2]])) {
+            vertices = [vertices[1], vertices[0], vertices[2]]
         }
         vertices.push(rightMost)
 
@@ -157,21 +157,22 @@ export function NewDelaunay() {
                 //console.log("delaunay: ", tri1, "with:", tri2)
 
                 allVertices = sortVertices(allVertices)
-                // const [min1, min2] = maximiseAngle(allVertices)
-                // if (min1 < min2) {
-                //     innerTempTriangles.push([allVertices[0], allVertices[2], allVertices[3]])
-                //     innerTempTriangles.push([allVertices[0], allVertices[1], allVertices[3]])
-                // } else {
-                //     innerTempTriangles.push([allVertices[0], allVertices[1], allVertices[2]])
-                //     innerTempTriangles.push([allVertices[1], allVertices[2], allVertices[3]])
-                // }
                 const [A, B, C, D] = allVertices
-                if (circumscribed(A, B, C, D) || circumscribed(A, D, C, B)) {
-                    innerTempTriangles.push([A, B, D])
-                    innerTempTriangles.push([B, C, D])
-                } else if (circumscribed(A, B, D, C) || circumscribed(B, C, D, A)) {
+                // const [min1, min2] = maximiseAngle(A, B, C, D)
+                // if (min1 < min2) {
+                //     innerTempTriangles.push([A, D, C])
+                //     innerTempTriangles.push([A, B, D])
+                // } else {
+                //     innerTempTriangles.push([A, B, C])
+                //     innerTempTriangles.push([B, C, D])
+                // }
+
+                if ((circumscribed(A, B, C, D) && circumscribed(C, B, D, A))) {
+                    innerTempTriangles.push([A, D, B])
+                    innerTempTriangles.push([A, D, C])
+                } else {
                     innerTempTriangles.push([A, B, C])
-                    innerTempTriangles.push([A, C, D])
+                    innerTempTriangles.push([B, C, D])
                 }
 
                 return
@@ -185,10 +186,9 @@ export function NewDelaunay() {
         return
     }
 
-    function maximiseAngle(allVertices) {
+    function maximiseAngle(A, B, C, D) {
         let min1 = Infinity
         let min2 = Infinity
-        const [A, B, C, D] = allVertices
 
         //first two triangle arrangement, 012, 123
         let tempMin = cosLaw(A, B, C)
